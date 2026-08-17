@@ -3,10 +3,12 @@ import 'package:task_manager_cli/models/urgent_task.dart';
 import 'package:task_manager_cli/models/task_priority.dart';
 import 'package:task_manager_cli/repository/task_repository.dart';
 import 'package:task_manager_cli/exceptions/task_exceptions.dart';
+import 'package:uuid/uuid.dart';
 
 /// Service de gestion des tâches
 class TaskService {
   final TaskRepository _repository;
+  final Uuid _uuid = const Uuid();
 
   TaskService(this._repository);
 
@@ -21,7 +23,7 @@ class TaskService {
       throw InvalidTaskDataException('Le titre ne peut pas être vide');
     }
 
-    final id = _generateId();
+    final id = _uuid.v4();
     Task task;
 
     if (isUrgent) {
@@ -77,13 +79,35 @@ class TaskService {
       throw TaskNotFoundException(id);
     }
 
-    task.markAsCompleted();
-    await _repository.update(task);
-    return task;
+    final updatedTask = task.copyWith(isCompleted: true);
+    await _repository.update(updatedTask);
+    return updatedTask;
   }
 
   Future<void> deleteTask(String id) async {
     await _repository.delete(id);
+  }
+
+  Future<Task> updateTask({
+    required String id,
+    String? title,
+    TaskPriority? priority,
+    DateTime? dueDate,
+  }) async {
+    final task = await _repository.getById(id);
+    if (task == null) {
+      throw TaskNotFoundException(id);
+    }
+
+    // Utilise copyWith pour créer une nouvelle instance avec les modifications
+    final updatedTask = task.copyWith(
+      title: title,
+      priority: priority,
+      dueDate: dueDate,
+    );
+
+    await _repository.update(updatedTask);
+    return updatedTask;
   }
 
   Future<List<Task>> getTasksByPriority(TaskPriority priority) async {
@@ -92,9 +116,5 @@ class TaskService {
 
   Future<List<Task>> getTasksByStatus(bool completed) async {
     return await _repository.getTasksByStatus(completed);
-  }
-
-  String _generateId() {
-    return DateTime.now().millisecondsSinceEpoch.toString();
   }
 }
