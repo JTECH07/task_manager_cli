@@ -170,11 +170,14 @@ Future<void> updateTask(TaskService service) async {
     'Nouveau titre (${taskToUpdate.title}): ',
   );
 
-  final newPriority = taskToUpdate is! UrgentTask
+  // On ne peut pas changer la priorité d'une tâche urgente.
+  // Pour les autres, on permet de ne pas choisir de nouvelle priorité.
+  final newPriority = (taskToUpdate is UrgentTask)
+      ? taskToUpdate.priority
       ? InputHelper.readPriority(
           'Nouvelle priorité (${taskToUpdate.priority.displayName})',
-        )
-      : taskToUpdate.priority;
+          allowEmpty: true,
+        );
 
   final newDueDate = InputHelper.readDate(
     'Nouvelle date d\'échéance (JJ/MM/AAAA): ',
