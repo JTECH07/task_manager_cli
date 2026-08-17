@@ -1,10 +1,7 @@
 import 'dart:io';
 import '../lib/repository/task_repository.dart';
 import '../lib/services/task_service.dart';
-import '../lib/models/task.dart';
 import '../lib/models/task_priority.dart';
-import '../lib/models/urgent_task.dart';
-import '../lib/exceptions/task_exceptions.dart';
 import '../lib/utils/helpers.dart';
 
 void main() async {
