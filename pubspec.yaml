@@ -1,7 +1,7 @@
 name: task_manager_cli
-description: A sample command-line application.
+description: A sample command-line CLI task management application in Dart.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/JTECH07/task_manager_cli
 
 environment:
   sdk: ^3.10.7
