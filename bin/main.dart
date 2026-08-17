@@ -1,10 +1,10 @@
 import 'dart:io';
-import '../lib/repository/task_repository.dart';
-import '../lib/services/task_service.dart';
-import '../lib/models/task_priority.dart';
-import '../lib/utils/helpers.dart';
+import 'package:task_manager_cli/repository/task_repository.dart';
+import 'package:task_manager_cli/services/task_service.dart';
+import 'package:task_manager_cli/models/task_priority.dart';
+import 'package:task_manager_cli/utils/helpers.dart';
 
-void main() async {
+Future<void> main() async {
   try {
     final repository = TaskRepository();
     final service = TaskService(repository);
@@ -43,15 +43,20 @@ Future<void> runApp(TaskService service) async {
           await deleteTask(service);
           break;
         case '8':
+          await updateTask(service);
+          break;
+        case '9':
           print('Au revoir!');
           return;
         default:
           print('x Option invalide. Veuillez réessayer.');
       }
-    } catch (e) {
-      print('x Erreur: $e');
+    } on TaskException catch (e) {
+      print('x Erreur de tâche: ${e.message}');
+    } catch (e, s) {
+      print('x Une erreur inattendue est survenue: $e');
     }
-    
+
     print('\nAppuyez sur Entrée pour continuer...');
     stdin.readLineSync();
   }
@@ -59,7 +64,7 @@ Future<void> runApp(TaskService service) async {
 
 Future<void> addTask(TaskService service, bool isUrgent) async {
   print('\n➕ ${isUrgent ? 'Ajouter une tâche urgente' : 'Ajouter une tâche'}');
-  
+
   final title = InputHelper.readLine('Titre: ');
   if (title == null || title.trim().isEmpty) {
     print('x Le titre est requis');
@@ -72,14 +77,18 @@ Future<void> addTask(TaskService service, bool isUrgent) async {
   }
 
   DateTime? dueDate;
-  final hasDueDate = InputHelper.readBool('Voulez-vous ajouter une date d\'échéance?');
+  final hasDueDate = InputHelper.readBool(
+    'Voulez-vous ajouter une date d\'échéance?',
+  );
   if (hasDueDate) {
     dueDate = InputHelper.readDate('Date d\'échéance (JJ/MM/AAAA): ');
   }
 
   String? escalationContact;
   if (isUrgent) {
-    escalationContact = InputHelper.readLine('Contact d\'escalade (optionnel): ');
+    escalationContact = InputHelper.readLine(
+      'Contact d\'escalade (optionnel): ',
+    );
   }
 
   try {
@@ -104,21 +113,29 @@ Future<void> viewAllTasks(TaskService service) async {
 Future<void> viewTasksByPriority(TaskService service) async {
   final priority = InputHelper.readPriority('Priorité');
   final tasks = await service.getTasksByPriority(priority);
-  DisplayHelper.displayTasks(tasks, title: 'Tâches prioritaires ${priority.displayName}');
+  DisplayHelper.displayTasks(
+    tasks,
+    title: 'Tâches prioritaires ${priority.displayName}',
+  );
 }
 
 Future<void> viewTasksByDueDate(TaskService service) async {
   final tasks = await service.getTasksSortedByDueDate();
-  DisplayHelper.displayTasks(tasks, title: 'Tâches triées par date d\'échéance');
+  DisplayHelper.displayTasks(
+    tasks,
+    title: 'Tâches triées par date d\'échéance',
+  );
 }
 
 Future<void> markTaskAsCompleted(TaskService service) async {
   final tasks = await service.getAllTasks();
   DisplayHelper.displayTasks(tasks);
-  
+
   if (tasks.isEmpty) return;
-  
-  final index = InputHelper.readInt('Numéro de la tâche à marquer comme terminée: ');
+
+  final index = InputHelper.readInt(
+    'Numéro de la tâche à marquer comme terminée: ',
+  );
   if (index == null || index < 1 || index > tasks.length) {
     print('x Numéro invalide');
     return;
@@ -133,12 +150,55 @@ Future<void> markTaskAsCompleted(TaskService service) async {
   }
 }
 
+Future<void> updateTask(TaskService service) async {
+  final tasks = await service.getAllTasks();
+  DisplayHelper.displayTasks(tasks, title: 'Modifier une tâche');
+
+  if (tasks.isEmpty) return;
+
+  final index = InputHelper.readInt('Numéro de la tâche à modifier: ');
+  if (index == null || index < 1 || index > tasks.length) {
+    print('x Numéro invalide');
+    return;
+  }
+
+  final taskToUpdate = tasks[index - 1];
+
+  print('\nLaissez vide pour ne pas modifier.');
+
+  final newTitle = InputHelper.readLine(
+    'Nouveau titre (${taskToUpdate.title}): ',
+  );
+
+  final newPriority = taskToUpdate is! UrgentTask
+      ? InputHelper.readPriority(
+          'Nouvelle priorité (${taskToUpdate.priority.displayName})',
+        )
+      : taskToUpdate.priority;
+
+  final newDueDate = InputHelper.readDate(
+    'Nouvelle date d\'échéance (JJ/MM/AAAA): ',
+  );
+
+  try {
+    await service.updateTask(
+      id: taskToUpdate.id,
+      title: newTitle?.trim().isEmpty ?? true ? null : newTitle,
+      priority: newPriority,
+      dueDate: newDueDate,
+    );
+    print('✓ Tâche modifiée avec succès!');
+  } catch (e) {
+    print('x Erreur lors de la modification: $e');
+  }
+}
+
 Future<void> deleteTask(TaskService service) async {
   final tasks = await service.getAllTasks();
   DisplayHelper.displayTasks(tasks);
-  
+
   if (tasks.isEmpty) return;
-  
+
   final index = InputHelper.readInt('Numéro de la tâche à supprimer: ');
   if (index == null || index < 1 || index > tasks.length) {
     print('x Numéro invalide');
