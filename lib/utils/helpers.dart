@@ -1,6 +1,6 @@
 import 'dart:io';
-import '../models/task.dart';
-import '../models/task_priority.dart';
+import 'package:task_manager_cli/models/task.dart';
+import 'package:task_manager_cli/models/task_priority.dart';
 
 /// Aide pour les interactions utilisateur
 class InputHelper {
@@ -43,9 +43,11 @@ class InputHelper {
 
   static TaskPriority readPriority(String prompt) {
     while (true) {
-      final input = readLine('$prompt (1: Basse, 2: Moyenne, 3: Élevée): ');
+      final input = readLine(
+        '$prompt (1: Basse, 2: Moyenne, 3: Élevée, Entrée pour garder): ',
+      );
       if (input == null || input.trim().isEmpty) return TaskPriority.medium;
-      
+
       switch (input.trim()) {
         case '1':
           return TaskPriority.low;
@@ -81,7 +83,7 @@ class DisplayHelper {
 
     print('\n$title (${tasks.length})');
     print('─' * 60);
-    
+
     for (var i = 0; i < tasks.length; i++) {
       final task = tasks[i];
       print('${i + 1}. ${task.toString()}');
@@ -100,7 +102,8 @@ class DisplayHelper {
     print('5. Voir les tâches par date d\'échéance');
     print('6. Marquer une tâche comme terminée');
     print('7. Supprimer une tâche');
-    print('8. Quitter');
+    print('8. Modifier une tâche');
+    print('9. Quitter');
     print('=' * 50);
   }
 }
