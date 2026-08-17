@@ -1,8 +1,8 @@
-import '../models/task.dart';
-import '../models/urgent_task.dart';
-import '../models/task_priority.dart';
-import '../repository/task_repository.dart';
-import '../exceptions/task_exceptions.dart';
+import 'package:task_manager_cli/models/task.dart';
+import 'package:task_manager_cli/models/urgent_task.dart';
+import 'package:task_manager_cli/models/task_priority.dart';
+import 'package:task_manager_cli/repository/task_repository.dart';
+import 'package:task_manager_cli/exceptions/task_exceptions.dart';
 
 /// Service de gestion des tâches
 class TaskService {
@@ -51,19 +51,24 @@ class TaskService {
 
   Future<List<Task>> getTasksSortedByPriority() async {
     final tasks = await _repository.getAll();
-    tasks.sort((a, b) => b.priority.priorityValue.compareTo(a.priority.priorityValue));
-    return tasks;
+    // Crée une nouvelle liste modifiable pour le tri
+    final sortedTasks = List.of(tasks);
+    sortedTasks.sort(
+      (a, b) => b.priority.priorityValue.compareTo(a.priority.priorityValue),
+    );
+    return sortedTasks;
   }
 
   Future<List<Task>> getTasksSortedByDueDate() async {
     final tasks = await _repository.getAll();
-    tasks.sort((a, b) {
+    final sortedTasks = List.of(tasks);
+    sortedTasks.sort((a, b) {
       if (a.dueDate == null && b.dueDate == null) return 0;
       if (a.dueDate == null) return 1;
       if (b.dueDate == null) return -1;
       return a.dueDate!.compareTo(b.dueDate!);
     });
-    return tasks;
+    return sortedTasks;
   }
 
   Future<Task> markTaskAsCompleted(String id) async {
@@ -71,7 +76,7 @@ class TaskService {
     if (task == null) {
       throw TaskNotFoundException(id);
     }
-    
+
     task.markAsCompleted();
     await _repository.update(task);
     return task;
