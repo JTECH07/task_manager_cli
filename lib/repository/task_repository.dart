@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as path;
+import 'package:task_manager_cli/models/task_priority.dart';
 import '../models/task.dart';
 import '../models/urgent_task.dart';
 import '../exceptions/task_exceptions.dart';
