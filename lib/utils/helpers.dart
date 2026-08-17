@@ -91,7 +91,7 @@ class DisplayHelper {
   }
 
   static void displayMenu() {
-    print('\n' + '=' * 50);
+    print('\n${'=' * 50}');
     print('GESTIONNAIRE DE TÂCHES');
     print('=' * 50);
     print('1. Ajouter une tâche');
