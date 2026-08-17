@@ -39,10 +39,30 @@ class UrgentTask extends Task {
   }
 
   @override
+  UrgentTask copyWith({
+    String? title,
+    TaskPriority? priority,
+    DateTime? dueDate,
+    bool? isCompleted,
+    String? escalationContact,
+  }) {
+    return UrgentTask(
+      id: id,
+      title: title ?? this.title,
+      // Les tâches urgentes ont toujours une priorité élevée
+      priority: TaskPriority.high,
+      dueDate: dueDate ?? this.dueDate,
+      isCompleted: isCompleted ?? this.isCompleted,
+      createdAt: createdAt,
+      escalationContact: escalationContact ?? this.escalationContact,
+    );
+  }
+
+  @override
   String toString() {
     final base = super.toString();
-    final contact = escalationContact != null 
-        ? ' | Contact: $escalationContact' 
+    final contact = escalationContact != null
+        ? ' | Contact: $escalationContact'
         : '';
     return 'URGENT - $base$contact';
   }
