@@ -99,3 +99,7 @@ void main() {
     });
   });
 }
+
+extension on Future<Directory> {
+  Future<String> get path => null;
+}
