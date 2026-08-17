@@ -8,12 +8,12 @@ import '../lib/exceptions/task_exceptions.dart';
 
 void main() {
   late TaskService service;
-  late String testDir;
+  late String? testDir;
   late String testFilePath;
 
   setUp(() async {
     testDir = await Directory.systemTemp.createTemp('task_service_test_').path;
-    testFilePath = path.join(testDir, 'tasks.json');
+    testFilePath = path.join(testDir!, 'tasks.json');
     final repository = TaskRepository(filePath: testFilePath);
     service = TaskService(repository);
   });
@@ -23,7 +23,7 @@ void main() {
     if (await file.exists()) {
       await file.delete();
     }
-    await Directory(testDir).delete();
+    await Directory(testDir!).delete();
   });
 
   group('TaskService Tests', () {
