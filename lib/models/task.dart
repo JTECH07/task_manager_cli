@@ -8,7 +8,7 @@ abstract class ITask {
   DateTime? get dueDate;
   bool get isCompleted;
   DateTime get createdAt;
-  
+
   Map<String, dynamic> toJson();
   void markAsCompleted();
 }
@@ -58,6 +58,22 @@ class Task implements ITask {
     );
   }
 
+  Task copyWith({
+    String? title,
+    TaskPriority? priority,
+    DateTime? dueDate,
+    bool? isCompleted,
+  }) {
+    return Task(
+      id: id,
+      title: title ?? this.title,
+      priority: priority ?? this.priority,
+      dueDate: dueDate ?? this.dueDate,
+      isCompleted: isCompleted ?? this.isCompleted,
+      createdAt: createdAt,
+    );
+  }
+
   @override
   void markAsCompleted() {
     isCompleted = true;
@@ -67,8 +83,8 @@ class Task implements ITask {
   String toString() {
     final status = isCompleted ? '✓' : '□';
     final priorityEmoji = _getPriorityEmoji();
-    final dueDateStr = dueDate != null 
-        ? ' | Échéance: ${_formatDate(dueDate!)}' 
+    final dueDateStr = dueDate != null
+        ? ' | Échéance: ${_formatDate(dueDate!)}'
         : '';
     return '$status $priorityEmoji $title (${priority.displayName})$dueDateStr';
   }
