@@ -41,12 +41,18 @@ class InputHelper {
     }
   }
 
-  static TaskPriority readPriority(String prompt) {
+  static TaskPriority? readPriority(String prompt, {bool allowEmpty = false}) {
     while (true) {
-      final input = readLine(
-        '$prompt (1: Basse, 2: Moyenne, 3: Élevée, Entrée pour garder): ',
-      );
-      if (input == null || input.trim().isEmpty) return TaskPriority.medium;
+      String fullPrompt = '$prompt (1: Basse, 2: Moyenne, 3: Élevée';
+      if (allowEmpty) {
+        fullPrompt += ', Entrée pour ignorer';
+      }
+      fullPrompt += '): ';
+
+      final input = readLine(fullPrompt);
+      if (input == null || input.trim().isEmpty) {
+        return allowEmpty ? null : TaskPriority.medium;
+      }
 
       switch (input.trim()) {
         case '1':
@@ -56,7 +62,7 @@ class InputHelper {
         case '3':
           return TaskPriority.high;
         default:
-          print('Option invalide. Choisissez 1, 2 ou 3.');
+          print('x Option invalide. Choisissez 1, 2 ou 3.');
       }
     }
   }
