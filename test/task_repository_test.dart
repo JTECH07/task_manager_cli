@@ -8,12 +8,12 @@ import '../lib/exceptions/task_exceptions.dart';
 
 void main() {
   late TaskRepository repository;
-  late String testDir;
+  late String? testDir;
   late String testFilePath;
 
   setUp(() async {
     testDir = await Directory.systemTemp.createTemp('task_test_').path;
-    testFilePath = path.join(testDir, 'tasks.json');
+    testFilePath = path.join(testDir!, 'tasks.json');
     repository = TaskRepository(filePath: testFilePath);
   });
 
@@ -22,7 +22,7 @@ void main() {
     if (await file.exists()) {
       await file.delete();
     }
-    await Directory(testDir).delete();
+    await Directory(testDir!).delete();
   });
 
   group('TaskRepository Tests', () {
@@ -108,4 +108,8 @@ void main() {
       expect(highTasks[0].id, '6');
     });
   });
+}
+
+extension on Future<Directory> {
+  Future<String>? get path => null;
 }
